@@ -1,5 +1,3 @@
-import { json } from "@remix-run/node";
-import { useLoaderData } from "@remix-run/react";
 import {
   Card,
   Layout,
@@ -10,28 +8,10 @@ import {
   BlockStack,
 } from "@shopify/polaris";
 import { TitleBar } from "@shopify/app-bridge-react";
-import { authenticate } from "~/shopify.server";
+import { useLoaderData } from "@remix-run/react";
 
-export async function loader({ request }) {
-  const { admin } = await authenticate.admin(request);
-
-  // const response = await admin.graphql(`
-  //   query CustomerList {
-  //     customers(first: 50) {
-  //       nodes {
-  //         id
-  //         firstName
-  //         lastName
-  //       }
-  //     }
-  //   }
-  // `);
-
-  // const data = await response.json();
-
-  // return json(data.data.customers.nodes);
-
-  return [{"id": 1, "firstName": "Joe 1", "lastName": "Doe"},{"id": 2, "firstName": "Joe 2", "lastName": "Doe"},{"id": 3, "firstName": "Joe 3", "lastName": "Doe"}]
+export async function loader() {
+  return [{"id": 1, "firstName": "Joe 1", "lastName": "Doe"},{"id": 2, "firstName": "Joe 2", "lastName": "Doe"},{"id": 3, "firstName": "Joe 3", "lastName": "Doe"}];
 }
 
 export default function Codes() {
