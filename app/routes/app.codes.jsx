@@ -1,5 +1,6 @@
+import { json } from "@remix-run/node";
+import { useLoaderData } from "@remix-run/react";
 import {
-  Box,
   Card,
   Layout,
   Link,
@@ -9,27 +10,53 @@ import {
   BlockStack,
 } from "@shopify/polaris";
 import { TitleBar } from "@shopify/app-bridge-react";
+import { authenticate } from "~/shopify.server";
 
-export default function AdditionalPage() {
+export async function loader({ request }) {
+  const { admin } = await authenticate.admin(request);
+
+  const response = await admin.graphql(`
+    query CustomerList {
+      customers(first: 50) {
+        nodes {
+          id
+          firstName
+          lastName
+        }
+      }
+    }
+  `);
+
+  const data = await response.json();
+
+  return json(data.data.customers.nodes);
+}
+
+export default function Codes() {
+  const customers = useLoaderData();
+
   return (
     <Page>
-      <TitleBar title="Additional page" />
+      <TitleBar title="Customer List" />
       <Layout>
         <Layout.Section>
           <Card>
             <BlockStack gap="300">
-              <Text as="p" variant="bodyMd">
-                Tesitng
-              </Text>
+              <Text as="h2" variant="headingMd">Customers</Text>
+              <List>
+                {customers.map((customer) => (
+                  <List.Item key={customer.id}>
+                    {customer.firstName} {customer.lastName}
+                  </List.Item>
+                ))}
+              </List>
             </BlockStack>
           </Card>
         </Layout.Section>
         <Layout.Section variant="oneThird">
           <Card>
             <BlockStack gap="200">
-              <Text as="h2" variant="headingMd">
-                Resources
-              </Text>
+              <Text as="h2" variant="headingMd">Resources</Text>
               <List>
                 <List.Item>
                   <Link
@@ -46,22 +73,5 @@ export default function AdditionalPage() {
         </Layout.Section>
       </Layout>
     </Page>
-  );
-}
-
-function Code({ children }) {
-  return (
-    <Box
-      as="span"
-      padding="025"
-      paddingInlineStart="100"
-      paddingInlineEnd="100"
-      background="bg-surface-active"
-      borderWidth="025"
-      borderColor="border"
-      borderRadius="100"
-    >
-      <code>{children}</code>
-    </Box>
   );
 }
